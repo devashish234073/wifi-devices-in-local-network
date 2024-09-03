@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cards-container"></div>
+    <script>
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                createCard(xhttp.responseText);
+            }
+        };
+        xhttp.open("GET", "api", true);
+        xhttp.send();
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+        const container = $('#cards-container');
+        function createCard(data) {
+            data = JSON.parse(data);
+            console.log(data);
+            for (const device in data) {
+                const card = _('div');
+                card.className = 'card';
+
+                const title = _('h3');
+                title.textContent = device;
+                card.appendChild(title);
+
+                const address = _('p');
+                address.textContent = `Address: ${data[device].addresses.join(', ')}`;
+                card.appendChild(address);
+
+                const port = _('p');
+                port.textContent = `Port: ${data[device].port}`;
+                card.appendChild(port);
+
+                const fullname = _('p');
+                fullname.textContent = `Fullname: ${data[device].fullname}`;
+                card.appendChild(fullname);
+
+                const host = _('p');
+                host.textContent = `Host: ${data[device].host}`;
+                card.appendChild(host);
+
+                const txtRecords = _('p');
+                txtRecords.textContent = `TXT Records: ${data[device].txt.join(', ')}`;
+                card.appendChild(txtRecords);
+
+                container.appendChild(card);
+            }
+        }
+        function $(selector) {
+            return document.querySelector(selector);
+        }
+        function _(tag) {
+            return document.createElement(tag);
+        }
+    </script>
+</body>
+
+</html>
