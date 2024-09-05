@@ -16,6 +16,10 @@
             font-size: 11px;
         }
 
+        li {
+            margin-top: 10px;
+        }
+
         .card {
             background-color: white;
             border: 1px solid #ccc;
@@ -31,6 +35,20 @@
 
         .card p {
             margin: 5px 0;
+        }
+
+        button {
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 11px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        button:active {
+            color: black;
+            background-color: cyan;
         }
     </style>
 </head>
@@ -136,6 +154,9 @@
                 div.appendChild(txtRecords);
                 cardData[device]["txtRecords"] = txtRecords;
 
+                if(device=="googlecast") {
+                    div.appendChild(createUploadSection());
+                }
                 container.appendChild(card);
             }
         }
@@ -150,6 +171,84 @@
                 }
             });
 
+        }
+        function createUploadSection() {
+            /*
+            <div id="uploadSection">
+              <input type="file" name="video" id="videoFileInput" accept="video/mp4">
+              <button>Upload</button>
+              <ol id="videoList">
+              </ol>
+          </div>
+            */
+           let uploadSection = _("div");
+           uploadSection.setAttribute("id","uploadSection");
+           let input = _("input");
+           input.setAttribute("type","file");
+           input.setAttribute("name","video");
+           input.setAttribute("id","videoFileInput");
+           input.setAttribute("accept","video/mp4");
+           let button = _("button");
+           button.innerText = "Upload";
+           let ol = _("ol");
+           ol.setAttribute("id","videoList");
+           uploadSection.appendChild(input);
+           uploadSection.appendChild(button);
+           uploadSection.appendChild(ol);
+           button.addEventListener("click",uploadVideo);
+           return uploadSection;
+        }
+        function uploadVideo() {
+            const fileInput = $('#videoFileInput');
+            const file = fileInput.files[0];
+            if(!file) {
+                alert("Please choose a file first");
+                return;
+            }
+            const formData = new FormData();
+            formData.append('video', file);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log("Video upload response",response);
+                    let li = _("li");
+                    let a = _("a");
+                    a.href = response.link;
+                    a.innerText = response.link;
+                    a.target = "_blank";
+                    li.appendChild(a);
+                    let linkSplit = response.link.split("/stream/");
+                    if(linkSplit.length==2) {
+                        button = _("button");
+                        button.innerText = "Cast";
+                        li.appendChild(button);
+                        button.setAttribute("id","link_"+linkSplit[1]);
+                        button.addEventListener("click",castToTv);
+                    }
+                    $("#videoList").appendChild(li);
+                    fileInput.value = "";
+                } else {
+                    console.error('Upload failed:', xhr.statusText);
+                }
+            };
+            xhr.onerror = function () {
+                console.error('Upload failed:', xhr.statusText);
+            };
+            xhr.send(formData);
+        }
+        function castToTv(evt) {
+            videoLink = evt.target.id;
+            console.log("videoLink",videoLink);
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(xhttp.responseText);
+                }
+            };
+            xhttp.open("GET", "castToTv/"+videoLink.replace("link_",""), true);
+            xhttp.send();
         }
         function $(selector) {
             return document.querySelector(selector);
