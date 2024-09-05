@@ -65,7 +65,11 @@
             for (const device in data) {
                 if (cardData[device]) {
                     console.log("cardData for device " + device, cardData[device]);
-                    cardData[device]["address"].textContent = `Address: ${data[device].addresses.join(', ')}`;
+                    try {
+                        cardData[device]["address"].textContent = `Address: ${data[device].addresses.join(', ')}`;
+                    } catch(e) {
+                        cardData[device]["address"].textContent = `Address: ${data[device].addresses}`;
+                    }
                     cardData[device]["port"].textContent = `Port: ${data[device].port}`;
                     cardData[device]["fullname"].textContent = `Fullname: ${data[device].fullname}`;
                     cardData[device]["host"].textContent = `Host: ${data[device].host}`;
@@ -100,7 +104,11 @@
                 createClickListener(title, div);
 
                 const address = _('p');
-                address.textContent = `Address: ${data[device].addresses.join(', ')}`;
+                try {
+                    address.textContent = `Address: ${data[device].addresses.join(', ')}`;
+                } catch(e) {
+                    address.textContent = `Address: ${data[device].addresses}`;
+                }
                 div.appendChild(address);
                 cardData[device]["address"] = address;
 

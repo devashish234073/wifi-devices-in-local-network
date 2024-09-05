@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/devashish234073/wifi-devices-in-local-network#readme",
   "dependencies": {
-    "mdns-js": "^1.0.3"
+    "castv2-client": "^1.2.0",
+    "mdns-js": "^1.0.3",
+    "wifi-devices-in-local-network": "file:"
   }
 }
