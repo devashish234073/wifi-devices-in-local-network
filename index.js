@@ -46,42 +46,7 @@ function scan() {
     browser.on('update', function (data) {
         obj[data.type[0]["name"]] = data;
         console.log(`${data.addresses} ${data.fullname} ${data.type[0]["name"]}`);
-        tvIp = data.addresses[0]
-        if (notConnected && data.type[0]["name"] == "googlecastu") {
-            notConnected = false;
-            var client = new Client();
-
-            client.connect(data.addresses[0], function () {
-                console.log("connected..");
-                client.launch(DefaultMediaReceiver, function (err, player) {
-                    if (err) {
-                        console.log("Unable to get player", err);
-                    } else {
-                        //console.log(player);
-                        var media = {
-                            contentId: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/big_buck_bunny_1080p.mp4',
-                            contentType: 'video/mp4',
-                            streamType: 'BUFFERED',
-                            metadata: {
-                                type: 0,
-                                metadataType: 0,
-                                title: "Big Buck Bunny",
-                                images: [
-                                    { url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg' }
-                                ]
-                            }
-                        };
-                        player.load(media, { autoplay: true }, function(err, status) {
-                            if(err) {
-                                console.log("Unable to load player",err);
-                            } else {
-                                console.log("Player loaded successfully",status);
-                            }
-                        });
-                    }
-                });
-            });
-        }
+        tvIp = data.addresses[0];
     });
 }
 
@@ -161,7 +126,7 @@ function serverFunc(req, res) {
                             metadata: {
                                 type: 0,
                                 metadataType: 0,
-                                title: "Big Buck Bunny",
+                                title: "Video From Laptop",
                                 images: [
                                     { url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg' }
                                 ]
