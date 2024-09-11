@@ -6,6 +6,7 @@ var Client = require('castv2-client').Client;
 const formidable = require("formidable");
 const path = require("path");
 const os = require('os');
+const { exec } = require('child_process');
 
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
@@ -51,6 +52,7 @@ function scan() {
 }
 
 scan();
+let CMND_MAP = {"up":19,"down":20,"left":21,"right":22,"ok":23};
 
 function serverFunc(req, res) {
     if (req.url == "/api") {
@@ -132,13 +134,15 @@ function serverFunc(req, res) {
                                 ]
                             }
                         };
-                        player.load(media, { autoplay: true }, function(err, status) {
+                        setTimeout(()=>{
+                          player.load(media, { autoplay: true }, function(err, status) {
                             if(err) {
                                 console.log("Unable to load player",err);
                             } else {
                                 console.log("Player loaded successfully",status);
                             }
-                        });
+                          });
+                        },1500);
                     }
                 });
             });
@@ -146,6 +150,26 @@ function serverFunc(req, res) {
         } else {
             res.end(`{"error":"Video Not Found "}`);
         }
+    } else if(req.url.indexOf("/runAdb/")>-1) {
+      let cmnd = req.url.replace("/runAdb/","").split("%20").join(" ");
+      exec(`adb shell input keyevent ${CMND_MAP[cmnd]}`, (error, stdout, stderr) => {
+        if (error) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Error executing Python script', error: error.message }));
+            console.error('Python script execution error:', error);
+            return;
+        }
+
+        if (stderr) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Python script error', error: stderr }));
+            console.error('Python script error output:', stderr);
+            return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Python script output', output: stdout }));
+        console.log('Python script output:', stdout);
+      });
     } else {
         let html = fs.readFileSync("index.html");
         res.end(html);

@@ -156,6 +156,8 @@
 
                 if(device=="googlecast") {
                     div.appendChild(createUploadSection());
+                } else if(device=="adb") {
+                    div.appendChild(createAdbSection());
                 }
                 container.appendChild(card);
             }
@@ -171,6 +173,56 @@
                 }
             });
 
+        }
+        function sendActionToTv(evt) {
+            let action = evt.target.innerText.toLowerCase();
+            console.log("action",action);
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(xhttp.responseText);
+                }
+            };
+            xhttp.open("GET", "runAdb/"+action, true);
+            xhttp.send();
+        }
+        function createAdbSection() {
+            let adbSection = _("div");
+            adbSection.setAttribute("id","adbSection");
+            let table = _("table");
+            adbSection.appendChild(table);
+            let trs = [_("tr"),_("tr"),_("tr")];
+            for(let trIndx=0;trIndx<trs.length;trIndx++) {
+                let tr = trs[trIndx];
+                table.appendChild(tr);
+                let tds = [_("td"),_("td"),_("td")];
+                for(let tdIndx=0;tdIndx<tds.length;tdIndx++) {
+                    let td = tds[tdIndx];
+                    tr.appendChild(td);
+                    if(trIndx == 0 && tdIndx == 1) {
+                        let button = _("button");
+                        button.innerText = "UP";
+                        td.appendChild(button);
+                    } else if(trIndx == 1 && tdIndx == 0) {
+                        let button = _("button");
+                        button.innerText = "LEFT";
+                        td.appendChild(button);
+                    } else if(trIndx == 1 && tdIndx == 2) {
+                        let button = _("button");
+                        button.innerText = "RIGHT";
+                        td.appendChild(button);
+                    } else if(trIndx == 2 && tdIndx == 1) {
+                        let button = _("button");
+                        button.innerText = "DOWN";
+                        td.appendChild(button);
+                    } else if(trIndx == 1 && tdIndx == 1) {
+                        let button = _("button");
+                        button.innerText = "OK";
+                        td.appendChild(button);
+                    }
+                }
+            }
+            return adbSection;
         }
         function createUploadSection() {
             /*
