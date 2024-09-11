@@ -20,6 +20,13 @@
             margin-top: 10px;
         }
 
+        #adbSection button{
+            height: 40px;
+            width: 40px;
+            font-size: 9px;
+            border-radius: 20px;
+        }
+
         .card {
             background-color: white;
             border: 1px solid #ccc;
@@ -191,7 +198,7 @@
             adbSection.setAttribute("id","adbSection");
             let table = _("table");
             adbSection.appendChild(table);
-            let trs = [_("tr"),_("tr"),_("tr")];
+            let trs = [_("tr"),_("tr"),_("tr"),_("tr"),_("tr")];
             for(let trIndx=0;trIndx<trs.length;trIndx++) {
                 let tr = trs[trIndx];
                 table.appendChild(tr);
@@ -203,22 +210,47 @@
                         let button = _("button");
                         button.innerText = "UP";
                         td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
                     } else if(trIndx == 1 && tdIndx == 0) {
                         let button = _("button");
                         button.innerText = "LEFT";
                         td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
                     } else if(trIndx == 1 && tdIndx == 2) {
                         let button = _("button");
                         button.innerText = "RIGHT";
                         td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
                     } else if(trIndx == 2 && tdIndx == 1) {
                         let button = _("button");
                         button.innerText = "DOWN";
                         td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
                     } else if(trIndx == 1 && tdIndx == 1) {
                         let button = _("button");
                         button.innerText = "OK";
                         td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
+                    } else if(trIndx == 3 && tdIndx == 0) {
+                        let button = _("button");
+                        button.innerText = "vol -";
+                        td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
+                    } else if(trIndx == 3 && tdIndx == 2) {
+                        let button = _("button");
+                        button.innerText = "vol +";
+                        td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
+                    } else if(trIndx == 4 && tdIndx == 0) {
+                        let button = _("button");
+                        button.innerText = "home";
+                        td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
+                    } else if(trIndx == 4 && tdIndx == 2) {
+                        let button = _("button");
+                        button.innerText = "back";
+                        td.appendChild(button);
+                        button.addEventListener("click",sendActionToTv);
                     }
                 }
             }

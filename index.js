@@ -52,7 +52,7 @@ function scan() {
 }
 
 scan();
-let CMND_MAP = {"up":19,"down":20,"left":21,"right":22,"ok":23};
+let CMND_MAP = {"up":19,"down":20,"left":21,"right":22,"ok":23,"back":4,"home":3,"vol +":24,"vol -":25};
 
 function serverFunc(req, res) {
     if (req.url == "/api") {
@@ -140,6 +140,7 @@ function serverFunc(req, res) {
                                 console.log("Unable to load player",err);
                             } else {
                                 console.log("Player loaded successfully",status);
+                                console.log(player);
                             }
                           });
                         },1500);
@@ -152,7 +153,10 @@ function serverFunc(req, res) {
         }
     } else if(req.url.indexOf("/runAdb/")>-1) {
       let cmnd = req.url.replace("/runAdb/","").split("%20").join(" ");
-      exec(`adb shell input keyevent ${CMND_MAP[cmnd]}`, (error, stdout, stderr) => {
+      if(CMND_MAP[cmnd]) {
+        cmnd = `adb shell input keyevent ${CMND_MAP[cmnd]}`;
+      }
+      exec(`${cmnd}`, (error, stdout, stderr) => {
         if (error) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Error executing Python script', error: error.message }));
