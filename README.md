@@ -13,3 +13,19 @@ https://www.linkedin.com/feed/update/urn:li:ugcPost:7237350981519212545/
 And this video for explanation: https://www.youtube.com/watch?v=hEE60a8NFSA
 
 Latest screenshot: ![image](https://github.com/user-attachments/assets/2d581d16-4cb2-42fb-9e3f-07d989855389)
+
+Added controls under adb for listing, launching and adding exclusion rules.
+
+![image](https://github.com/user-attachments/assets/1d523220-f680-4ea2-9ef1-0b19c9552ea5)
+The dropdown shows apps package name which is from the output of the below command:
+
+"adb shell pm list packages"
+
+To launch an app from the package name from the list, this command is being run:
+
+"adb shell monkey -p ${package} -c android.intent.category.LAUNCHER 1"
+
+Also there is an exclusion text box using which rules can be created for app logs to close the app when the rule matches.
+
+For example in this video I set the first rule on "NowPlaying,Kabootar" for teh youtube app so whenever youtube logs the Text NowPlaying and Kabootar together i.e. when the song "Kabootar Ja Ja" is being played on the tv, the app triggers a back command and closes it. The video plays for few seconds as the "logcat" command to check the app logs runs every 2 seconds.
+
