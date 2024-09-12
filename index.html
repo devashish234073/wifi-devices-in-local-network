@@ -57,6 +57,14 @@
             color: black;
             background-color: cyan;
         }
+        select {
+            margin-top: 10px;
+            height: 30px;
+            font-size: 10px;
+        }
+        input {
+            height: 26px;
+        }
     </style>
 </head>
 
@@ -193,6 +201,50 @@
             xhttp.open("GET", "runAdb/"+action, true);
             xhttp.send();
         }
+        function getAllPackages() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log("runAdbpm output",xhttp.responseText);
+                    let resp = JSON.parse(xhttp.responseText);
+                    let packages = resp.output.split("\r\n");
+                    console.log("adb run pachages",packages);
+                    let select = _("select");
+                    select.setAttribute("id","package");
+                    for(let i=0;i<packages.length;i++) {
+                        let opt = _("option");
+                        opt.innerText = packages[i].replace("package:","");
+                        opt.value = packages[i].replace("package:","");
+                        select.appendChild(opt);
+                    }
+                    $("#adbSection").appendChild(select);
+                    let exclusion = _("input");
+                    exclusion.setAttribute("placeholder","eclusion filter");
+                    exclusion.setAttribute("id","exclusions");
+                    let launchBtn = _("button");
+                    launchBtn.innerText = "Launch";
+                    launchBtn.addEventListener("click",launchApp);
+                    $("#adbSection").appendChild(exclusion);
+                    $("#adbSection").appendChild(launchBtn);
+                    setTimeout(()=>{
+                        select.value = "com.google.android.youtube.tv";
+                    },1000);
+                }
+            };
+            xhttp.open("GET", "runAdbpm", true);
+            xhttp.send();
+        }
+        function launchApp() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(xhttp.responseText);
+                }
+            };
+            let exclusions = ($("#exclusions").value.trim()==""?"":"?exclusions="+$("#exclusions").value.trim());
+            xhttp.open("GET", "launchApp/"+$("#package").value+exclusions, true);
+            xhttp.send();
+        }
         function createAdbSection() {
             let adbSection = _("div");
             adbSection.setAttribute("id","adbSection");
@@ -254,6 +306,7 @@
                     }
                 }
             }
+            getAllPackages();
             return adbSection;
         }
         function createUploadSection() {

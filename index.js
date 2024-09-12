@@ -30,13 +30,14 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 let obj = {};
+let adbFound = false;
 //if you have another mdns daemon running, like avahi or bonjour, uncomment following line
 //mdns.excludeInterface('0.0.0.0');
 
 //var browser = mdns.createBrowser(mdns.tcp('googlecast'));
 let notConnected = true;
 let tvIp = null;
-function scan() {
+async function scan() {
     var browser = mdns.createBrowser(mdns.tcp('googlecast'));
 
     browser.on('ready', function () {
@@ -46,6 +47,12 @@ function scan() {
 
     browser.on('update', function (data) {
         obj[data.type[0]["name"]] = data;
+        if(data.type[0]["name"]=="googlecast") {
+          //add one for adb even if its not being explored
+          testAdb(data.addresses[0]);
+        } else if(data.type[0]["name"]=="adb") {
+          adbFound = true;
+        }
         console.log(`${data.addresses} ${data.fullname} ${data.type[0]["name"]}`);
         tvIp = data.addresses[0];
     });
@@ -159,26 +166,137 @@ function serverFunc(req, res) {
       exec(`${cmnd}`, (error, stdout, stderr) => {
         if (error) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Error executing Python script', error: error.message }));
-            console.error('Python script execution error:', error);
+            res.end(JSON.stringify({ message: 'Error executing ', error: error.message }));
+            console.error(' execution error:', error);
             return;
         }
 
         if (stderr) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Python script error', error: stderr }));
-            console.error('Python script error output:', stderr);
+            res.end(JSON.stringify({ message: ' error', error: stderr }));
+            console.error(' error output:', stderr);
             return;
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Python script output', output: stdout }));
-        console.log('Python script output:', stdout);
+        res.end(JSON.stringify({ message: ' output', output: stdout }));
+        console.log(' output:', stdout);
+      });
+    } else if(req.url == "/runAdbpm") {
+      exec(`adb shell pm list packages`, (error, stdout, stderr) => {
+        if (error) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Error executing ', error: error.message }));
+            console.error(' execution error:', error);
+            return;
+        }
+
+        if (stderr) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: ' error', error: stderr }));
+            console.error(' error output:', stderr);
+            return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: ' output', output: stdout }));
+        console.log(' output:', stdout);
+      });
+    } else if(req.url.indexOf("/launchApp/")==0) {
+      let package = req.url.replace("/launchApp/","");
+      let exclusions = null;
+      if(package.indexOf("?exclusions=")>-1) {
+        let packageSplit = package.split("?exclusions=");
+        if(packageSplit.length==2) {
+          package = packageSplit[0];
+          exclusions = packageSplit[1];
+        }
+      }
+      if(exclusions!=null) {
+        addExclusions(package,exclusions);
+      } else {
+        console.log("No exclusions added");
+      }
+      exec(`adb shell monkey -p ${package} -c android.intent.category.LAUNCHER 1`, (error, stdout, stderr) => {
+        if (error) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Error executing ', error: error.message }));
+            console.error(' execution error:', error);
+            return;
+        }
+
+        if (stderr) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: ' error', error: stderr }));
+            console.error(' error output:', stderr);
+            return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: ' output', output: stdout }));
+        console.log(' output:', stdout);
       });
     } else {
         let html = fs.readFileSync("index.html");
         res.end(html);
     }
 }
+
+function testAdb(ip) {
+  exec(`adb shell pwd`, (error, stdout, stderr) => {
+    if (error) {
+        console.error(' execution error:', error);
+        return;
+    }
+
+    if (stderr) {
+        console.error(' error output:', stderr);
+        return;
+    }
+    console.log(' output:', stdout);
+    obj["adb"] = {"addresses":[ip],"type":[{"name":"adb"}]};
+    adbFound = true;
+  });
+}
+
+let exclusionsObj = {};
+function addExclusions(package,exclusions) {
+  exclusionsObj[package] = exclusions;
+}
+
+function processExclusions() {
+  for(let package in exclusionsObj) {
+    let exclusion = exclusionsObj[package];
+    console.log("processing exclusion for "+package,exclusion);
+    let exclusionSplit = exclusion.split(",");
+    let greps = "";
+    for(let i=0;i<exclusionSplit.length;i++) {
+      greps+="| grep "+exclusionSplit[i]+" ";
+    }
+    exec(`adb shell "logcat -d ${package} ${greps}"`, (error, stdout, stderr) => {
+      if (error) {
+          console.error(' execution error:', error);
+          return;
+      }
+  
+      if (stderr) {
+          console.error(' error output:', stderr);
+          return;
+      }
+      stdout.split();
+      console.log(' exclusion found:', stdout);
+      //exclusion found, run home button
+      let homeCommand = `adb shell input keyevent ${CMND_MAP["home"]}`;
+      exec(`${homeCommand}"`, (error, stdout, stderr) => {});
+    });
+  }
+}
+
+setInterval(()=>{
+  if(adbFound) {
+    console.log("Processing eclusions");
+    processExclusions();
+  } else {
+    console.log("Eclusions processing cancelled as there is no adb");
+  }
+},2000);
 
 let server = http.createServer(serverFunc);
 const PORT = 9999;
