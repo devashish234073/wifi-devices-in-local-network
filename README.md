@@ -17,6 +17,7 @@ Latest screenshot: ![image](https://github.com/user-attachments/assets/2d581d16-
 Added controls under adb for listing, launching and adding exclusion rules.
 
 ![image](https://github.com/user-attachments/assets/1d523220-f680-4ea2-9ef1-0b19c9552ea5)
+
 The dropdown shows apps package name which is from the output of the below command:
 
 "adb shell pm list packages"
