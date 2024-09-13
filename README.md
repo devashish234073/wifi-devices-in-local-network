@@ -10,7 +10,7 @@ TO run:
 7. and then
 8. terraform apply
 9. if you dont have terraform you can donwload and setup adb by following this video https://www.youtube.com/watch?v=TkMhG-iGWPs
-10. Follow the same video to setup adb on TV
+10. Follow the same video to setup adb on TV (setting up on TV is needed even on the terraform one, as terraform is just doing the setup on laptop)
 
 Check this video for explanation: https://www.youtube.com/watch?v=v6kG2t6i_Yg
 
