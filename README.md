@@ -1,5 +1,17 @@
 # wifi-devices-in-local-network
 
+TO run:
+1. clone this repo and cd to its directory
+2. do npm install
+3. node index.js
+4. If you want to setup adb also , bofore #2 do the below
+5. If you have terraform installed in your machine
+6. do terraform init
+7. and then
+8. terraform apply
+9. if you dont have terraform you can donwload and setup adb by following this video https://www.youtube.com/watch?v=TkMhG-iGWPs
+10. Follow the same video to setup adb on TV
+
 Check this video for explanation: https://www.youtube.com/watch?v=v6kG2t6i_Yg
 
 ![image](https://github.com/user-attachments/assets/161de2cc-49be-4771-8df3-35b9c4c817d3)
